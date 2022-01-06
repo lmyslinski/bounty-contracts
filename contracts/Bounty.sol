@@ -45,6 +45,7 @@ contract Bounty {
     // Function to receive Ether. msg.data must be empty
     receive() external payable {
         console.log("Received some ether");
+        console.log("Current balance: ", address(this).balance);
     }
 
     // Fallback function is called when msg.data is not empty

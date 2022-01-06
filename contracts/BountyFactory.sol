@@ -28,7 +28,7 @@ contract BountyFactory {
 
     // Bounty factory needs to receive the funds along with the params in order to
 
-    function createBounty(uint256 _expiryTimestamp) public payable {
+    function createBounty(uint256 _expiryTimestamp) public payable returns (address) {
         address payable bountyOwner = payable(msg.sender);
 
         Bounty newBounty = new Bounty(supervisor, bountyOwner,_expiryTimestamp);
@@ -37,7 +37,10 @@ contract BountyFactory {
 
         (bool success, bytes memory data) = bountyAddress.call{value: msg.value}("");
         require(success, "Failed to deposit bounty value");
+
+        console.log("Balance after creation:", bountyAddress.balance);
         
         emit BountyCreated(newBounty);
+        return bountyAddress;
     }
 }
