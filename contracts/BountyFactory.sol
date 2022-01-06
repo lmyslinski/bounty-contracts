@@ -35,10 +35,8 @@ contract BountyFactory {
         address bountyAddress = address(newBounty);
         allBounties[bountyAddress] = newBounty;
 
-        (bool success, bytes memory data) = bountyAddress.call{value: msg.value}("");
+        (bool success, ) = bountyAddress.call{value: msg.value}("");
         require(success, "Failed to deposit bounty value");
-
-        console.log("Balance after creation:", bountyAddress.balance);
         
         emit BountyCreated(newBounty);
         return bountyAddress;
