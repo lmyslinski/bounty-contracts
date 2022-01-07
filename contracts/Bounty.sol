@@ -15,7 +15,6 @@ contract Bounty {
     event BountyTimeoutClaimed();
 
     constructor(address payable _supervisor, address payable _owner, uint256 _expiryTimestamp) {
-        console.log(_expiryTimestamp);
         parent = msg.sender; // setting the bounty factory ref
         owner = _owner;
         supervisor = _supervisor;
@@ -34,7 +33,6 @@ contract Bounty {
     // the ether is released back to the sender.
     function claimTimeout() public {
         require(block.timestamp >= expiryTimestamp, "This contract has not expired yet.");
-        console.log("Contract is past expiry date, returning the funds to the owner");
         emit BountyTimeoutClaimed();
         selfdestruct(owner);
     }

@@ -35,7 +35,6 @@ contract BountyFactory {
         address bountyAddress = address(newBounty);
         allBounties[bountyAddress] = newBounty;
 
-
         (bool success, ) = bountyAddress.call{value: msg.value}("");
         require(success, "Failed to deposit bounty value");
         
