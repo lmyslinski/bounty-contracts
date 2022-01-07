@@ -11,9 +11,12 @@ contract Bounty {
     address parent;  // address of the parent contract
 
     event BountyCompleted(address indexed bountyAddress, uint256 balance);
+    event DepositReceived(address indexed senderAddress, uint256 amount);
+    event BountyTimeoutClaimed();
 
     constructor(address payable _supervisor, address payable _owner, uint256 _expiryTimestamp) {
-        parent = msg.sender; // setting the contract creator
+        console.log(_expiryTimestamp);
+        parent = msg.sender; // setting the bounty factory ref
         owner = _owner;
         supervisor = _supervisor;
         expiryTimestamp = _expiryTimestamp;
@@ -23,33 +26,32 @@ contract Bounty {
         return expiryTimestamp;
     }
 
-    function getBountyValue() public view returns (uint256) {}
+    function getBountyValue() public view returns (uint256) {
+        return address(this).balance;
+    }
 
     // If the timeout is reached without the recipient closing the channel, then
     // the ether is released back to the sender.
     function claimTimeout() public {
-        require(block.timestamp >= expiryTimestamp);
+        require(block.timestamp >= expiryTimestamp, "This contract has not expired yet.");
+        console.log("Contract is past expiry date, returning the funds to the owner");
+        emit BountyTimeoutClaimed();
         selfdestruct(owner);
     }
 
     function payoutBounty(address payable recipient) public payable {
-        require(msg.sender == supervisor);
-        console.log("Payout bounty, balance: ");
-        console.log(address(this).balance);
-        console.log("Recipient: ");
-        console.log(recipient);
-        emit BountyCompleted(address(this), address(this).balance);
+        require(msg.sender == supervisor, "Sender not authorized.");
+        emit BountyCompleted(address(recipient), address(this).balance);
         selfdestruct(recipient);
     }
 
     // Function to receive Ether. msg.data must be empty
     receive() external payable {
-        console.log("Received some ether");
-        console.log("Current balance: ", address(this).balance);
+        emit DepositReceived(msg.sender, address(this).balance);
     }
 
     // Fallback function is called when msg.data is not empty
     fallback() external payable {
-        console.log("Received some ether");
+        
     }
 }
