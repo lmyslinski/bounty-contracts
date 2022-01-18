@@ -14,8 +14,8 @@ contract BountyFactory {
 
     event BountyCreated(Bounty bounty);
 
-    constructor() {
-        supervisor = payable(msg.sender);
+    constructor(address payable _supervisor) {
+        supervisor = _supervisor;
     }
 
     function getTotalBounties() public pure returns (uint256) {
