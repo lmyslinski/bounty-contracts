@@ -13,7 +13,11 @@ async function main() {
   // manually to make sure everything is compiled
   // await hre.run('compile');
 
-  const supervisorAddress = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
+  const supervisorAddress = process.env.SUPERVISOR_ADDRESS;
+  if (!supervisorAddress) {
+    throw new Error("Please set your supervisor address in a .env file");
+  }
+
   // We get the contract to deploy
   const BountyFactory = await hre.ethers.getContractFactory("BountyFactory");
   const bountyFactory = await BountyFactory.deploy(supervisorAddress);
