@@ -5,7 +5,7 @@ import BountyFactory from './artifacts/contracts/BountyFactory.sol/BountyFactory
 import Bounty from './artifacts/contracts/Bounty.sol/Bounty.json'
 
 // Update with the contract address logged out to the CLI when it was deployed 
-const bountyFactoryAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3"
+const bountyFactoryAddress = "0x5Ad2A671E49ebdc90C4c70f3d137a040aa6e1B99"
 
 function App() {
   // store greeting in local state
@@ -49,7 +49,7 @@ function App() {
       const signer = provider.getSigner()
       const contract = new ethers.Contract(bountyAddress, Bounty.abi, signer)
 
-      const hunter = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+      const hunter = "0xfC00F00a77e6341832533A72fa2Ed4245cBD2bf3"
 
       contract.on("BountyCompleted", (address, balance) => {
         console.log("Bounty completed", address, balance)
