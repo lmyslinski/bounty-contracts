@@ -1,8 +1,9 @@
 require("@nomiclabs/hardhat-waffle");
+require('hardhat-abi-exporter');
 
 const supervisorPkey = process.env.SUPERVISOR_PKEY;
 if (!supervisorPkey) {
-  throw new Error("Please set your MNEMONIC in a .env file");
+  throw new Error("Please set your SUPERVISOR_PKEY in a .env file");
 }
 
 const infuraProjectKey = "373543e00dc9456b98aec7048949799c";
