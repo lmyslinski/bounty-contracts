@@ -25,6 +25,10 @@ module.exports = {
     ropsten: {
       url: `https://ropsten.infura.io/v3/${infuraProjectKey}`,
       accounts: [supervisorPkey]
+    },
+    rinkeby: {
+      url: `https://rinkeby.infura.io/v3/${infuraProjectKey}`,
+      accounts: [supervisorPkey]
     }
   }
 };
