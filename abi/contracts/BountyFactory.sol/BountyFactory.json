@@ -15,32 +15,13 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract Bounty",
-        "name": "bounty",
+        "internalType": "address",
+        "name": "bountyAddress",
         "type": "address"
       }
     ],
     "name": "BountyCreated",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "allBounties",
-    "outputs": [
-      {
-        "internalType": "contract Bounty",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [

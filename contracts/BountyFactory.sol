@@ -8,11 +8,11 @@ contract BountyFactory {
 
     address payable supervisor; // the owner is the address that creates the factory and receives the commision
 
-    mapping(address => Bounty) public allBounties;
+    // mapping(address => Bounty) public allBounties;
     // we store a map of contract addresses to bounties
     // so that when we need to finalize a contract, we can just access that contract by its address
 
-    event BountyCreated(Bounty bounty);
+    event BountyCreated(address bountyAddress);
 
     constructor(address payable _supervisor) {
         supervisor = _supervisor;
@@ -33,12 +33,12 @@ contract BountyFactory {
 
         Bounty newBounty = new Bounty(supervisor, bountyOwner,_expiryTimestamp);
         address bountyAddress = address(newBounty);
-        allBounties[bountyAddress] = newBounty;
+        // allBounties[bountyAddress] = newBounty;
 
         (bool success, ) = bountyAddress.call{value: msg.value}("");
         require(success, "Failed to deposit bounty value");
         
-        emit BountyCreated(newBounty);
+        emit BountyCreated(bountyAddress);
         return bountyAddress;
     }
 }

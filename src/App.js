@@ -5,7 +5,7 @@ import BountyFactory from './artifacts/contracts/BountyFactory.sol/BountyFactory
 import Bounty from './artifacts/contracts/Bounty.sol/Bounty.json'
 
 // Update with the contract address logged out to the CLI when it was deployed 
-const bountyFactoryAddress = "0x5Ad2A671E49ebdc90C4c70f3d137a040aa6e1B99"
+const bountyFactoryAddress = "0x06783aE8EF55191730244984CA2FDAEd197ebCc0"
 
 function App() {
   // store greeting in local state
