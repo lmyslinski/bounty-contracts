@@ -5,6 +5,7 @@ import "hardhat/console.sol";
 
 contract Bounty {
     uint256 public expiryTimestamp; // Timeout in case no one completes the bounty in time
+    string public bountyId; // The secret used to link 1-1 the bounty with a backend entity
 
     address payable supervisor; // the address which receives the commision and manages payouts
     address payable owner;  // the bounty creator
@@ -14,11 +15,12 @@ contract Bounty {
     event DepositReceived(address indexed senderAddress, uint256 amount);
     event BountyTimeoutClaimed();
 
-    constructor(address payable _supervisor, address payable _owner, uint256 _expiryTimestamp) {
+    constructor(address payable _supervisor, address payable _owner, uint256 _expiryTimestamp, string memory _bountyId) {
         parent = msg.sender; // setting the bounty factory ref
         owner = _owner;
         supervisor = _supervisor;
         expiryTimestamp = _expiryTimestamp;
+        bountyId = _bountyId;
     }
 
     function getExpiryDate() public view returns (uint256) {

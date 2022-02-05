@@ -1,5 +1,4 @@
 const { expect } = require("chai");
-const { BigNumber } = require("ethers");
 const { ethers } = require("hardhat");
 
 describe("Bounty expiration", function () {
@@ -20,8 +19,9 @@ describe("Bounty expiration", function () {
 
     it("Should return the bounty to the owner upon expiration", async function () {
         const pastDate = createPastTimestamp(30)
+        const bountySecret = "12345"
 
-        bounty = await bountyContractFactory.deploy(supervisor.address, owner.address, pastDate);
+        bounty = await bountyContractFactory.deploy(supervisor.address, owner.address, pastDate, bountySecret);
         const bountyValue = ethers.utils.parseEther("4454")
 
         // verify the initial amount
@@ -46,8 +46,9 @@ describe("Bounty expiration", function () {
     })
 
     it("Should not allow withdrawing the bounty before the expiry date", async function () {
+        const bountySecret = "12345"
         const futureDate = createFutureTimestamp(30)
-        bounty = await bountyContractFactory.deploy(supervisor.address, owner.address, futureDate);
+        bounty = await bountyContractFactory.deploy(supervisor.address, owner.address, futureDate, bountySecret);
         await expect(bounty.connect(supervisor).claimTimeout()).to.be.revertedWith('This contract has not expired yet.');
     })
 

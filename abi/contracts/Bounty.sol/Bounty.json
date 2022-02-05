@@ -15,6 +15,11 @@
         "internalType": "uint256",
         "name": "_expiryTimestamp",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_bountyId",
+        "type": "string"
       }
     ],
     "stateMutability": "nonpayable",
@@ -67,6 +72,19 @@
   {
     "stateMutability": "payable",
     "type": "fallback"
+  },
+  {
+    "inputs": [],
+    "name": "bountyId",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],

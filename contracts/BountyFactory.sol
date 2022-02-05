@@ -8,32 +8,23 @@ contract BountyFactory {
 
     address payable supervisor; // the owner is the address that creates the factory and receives the commision
 
-    // mapping(address => Bounty) public allBounties;
-    // we store a map of contract addresses to bounties
-    // so that when we need to finalize a contract, we can just access that contract by its address
-
+    // a psuedo-list of all bounties
+    mapping(string => address) public allBounties;
+    
     event BountyCreated(address bountyAddress);
 
     constructor(address payable _supervisor) {
         supervisor = _supervisor;
     }
 
-    function getTotalBounties() public pure returns (uint256) {
-        return 0;
-    }
-
     // Should we accept any ERC20 token as bounty value?
-
-    // How to interact with the contract from the backend?
-
-    // Bounty factory needs to receive the funds along with the params in order to
-
-    function createBounty(uint256 _expiryTimestamp) public payable returns (address) {
+    function createBounty(uint256 _expiryTimestamp, string memory _bountyId) public payable returns (address) {
         address payable bountyOwner = payable(msg.sender);
 
-        Bounty newBounty = new Bounty(supervisor, bountyOwner,_expiryTimestamp);
+        Bounty newBounty = new Bounty(supervisor, bountyOwner, _expiryTimestamp, _bountyId);
         address bountyAddress = address(newBounty);
-        // allBounties[bountyAddress] = newBounty;
+
+        allBounties[_bountyId] = bountyAddress;
 
         (bool success, ) = bountyAddress.call{value: msg.value}("");
         require(success, "Failed to deposit bounty value");

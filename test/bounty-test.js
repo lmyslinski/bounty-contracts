@@ -12,10 +12,10 @@ describe("Bounty payouts", function () {
 
     beforeEach(async function () {
         provider = ethers.provider;
-
+        const secret = "12345"
         const Bounty = await ethers.getContractFactory("Bounty");
         [supervisor, owner, hunter] = await ethers.getSigners();
-        bounty = await Bounty.deploy(supervisor.address, owner.address, Date.now());
+        bounty = await Bounty.deploy(supervisor.address, owner.address, Date.now(), secret);
     })
 
     it("Should create successfully", async function () {
