@@ -23,10 +23,6 @@ contract Bounty {
         bountyId = _bountyId;
     }
 
-    function getExpiryDate() public view returns (uint256) {
-        return expiryTimestamp;
-    }
-
     function getBountyValue() public view returns (uint256) {
         return address(this).balance;
     }
@@ -41,8 +37,16 @@ contract Bounty {
 
     function payoutBounty(address payable recipient) public payable {
         require(msg.sender == supervisor, "Sender not authorized.");
-        emit BountyCompleted(address(recipient), address(this).balance);
-        selfdestruct(recipient);
+        uint256 reward = getRewardAmount();
+        (bool success, ) = recipient.call{value: reward}("");
+        require(success, "Failed to transfer bounty reward to recipient");
+        emit BountyCompleted(address(recipient), reward);
+        // destroy the contract and return the cut to supervisor
+        selfdestruct(supervisor);
+    }
+
+    function getRewardAmount() public view returns (uint256) {
+        return (address(this).balance*100/103);
     }
 
     // Function to receive Ether. msg.data must be empty

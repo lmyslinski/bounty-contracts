@@ -32,17 +32,22 @@ describe("Bounty payouts", function () {
         expect(balance.eq(bountyValue)).to.equal(true)
     })
 
-    it("Should payout the bounty to the hunter correctly", async function () {
-        const bountyValue = await depositEther("0.2")
+    it("Should payout the bounty to the hunter correctly and send the 3% cut to supervisor", async function () {
+        const totalBountyValue = await depositEther("0.2")
+        const rewardValue = (totalBountyValue.mul(100)).div(103)
 
         const hunterInitialBalance = (await provider.getBalance(hunter.address))
+        const supervisorInitialBalance = (await provider.getBalance(supervisor.address))
 
         await bounty.payoutBounty(hunter.address)
 
         const hunterBalance = (await provider.getBalance(hunter.address))
         const bountyBalance = (await provider.getBalance(bounty.address))
+        const supervisorBalance = (await provider.getBalance(supervisor.address))
 
-        expect(hunterBalance.eq(hunterInitialBalance.add(bountyValue))).to.equal(true)
+        expect(hunterBalance.eq(hunterInitialBalance.add(rewardValue))).to.equal(true)
+        // we're gonna get less than 3% since we still need to pay for eth transfer to hunter
+        expect(supervisorBalance >= supervisorInitialBalance).to.equal(true)
         expect(bountyBalance).to.equal(ethers.utils.parseEther("0"))
     })
 
