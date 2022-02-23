@@ -6,9 +6,8 @@ import "./Bounty.sol";
 
 contract BountyFactory {
 
-    address payable supervisor; // the owner is the address that creates the factory and receives the commision
+    address payable supervisor; // the supervisor is the address that creates the factory and receives the commision
 
-    // a psuedo-list of all bounties
     mapping(string => address) public allBounties;
     
     event BountyCreated(address bountyAddress);
@@ -17,17 +16,23 @@ contract BountyFactory {
         supervisor = _supervisor;
     }
 
-    // Should we accept any ERC20 token as bounty value?
     function createBounty(uint256 _expiryTimestamp, string memory _bountyId) public payable returns (address) {
+        require(msg.value >= (1 ether/100), "The minimum bounty value is 0.01 ETH.");
         address payable bountyOwner = payable(msg.sender);
+
+        uint comission = (1 ether/200); // 0.005 ETH
+        uint bountyValue = msg.value - comission;
 
         Bounty newBounty = new Bounty(supervisor, bountyOwner, _expiryTimestamp, _bountyId);
         address bountyAddress = address(newBounty);
 
         allBounties[_bountyId] = bountyAddress;
 
-        (bool success, ) = bountyAddress.call{value: msg.value}("");
-        require(success, "Failed to deposit bounty value");
+        (bool depositToSupervisorResult, ) = supervisor.call{value: comission}("");
+        require(depositToSupervisorResult, "Failed to transfer bounty reward to recipient");
+
+        (bool depositToBountyResult, ) = bountyAddress.call{value: bountyValue}("");
+        require(depositToBountyResult, "Failed to deposit bounty value");
         
         emit BountyCreated(bountyAddress);
         return bountyAddress;
