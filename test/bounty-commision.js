@@ -51,6 +51,31 @@ describe("Bounty factory contract", function () {
         expect(supervisorBalanceAfterBounty).to.equal(supervisorBalance.add(ethers.utils.parseEther("0.005")))
     })
 
+    it("Should transfer the entire reward to the hunter", async function() {
+        const bountyValue = ethers.utils.parseEther("0.1")
+        const reward = bountyValue.sub(ethers.utils.parseEther("0.005"))
+        const overrides = {
+            value: bountyValue
+        }
+        const bountyContract = await bountyContractFactory.deploy(supervisor.address)
+        await bountyContract.deployTransaction.wait();
+        
+        // create the bounty as the owner
+        const bcWithOwner = bountyContract.connect(owner)
+        await bcWithOwner.createBounty(createFutureTimestamp(30), "123", overrides)
+        const bountyAddress = await bountyContract.allBounties("123")
+
+        const hunterBalanceBefore = await provider.getBalance(hunter.address)
+
+        // payout the bounty to the hunter, called by the supervisor
+        const bounty = new ethers.Contract(bountyAddress, abi, supervisor);
+        await bounty.payoutBounty(hunter.address)
+
+        const hunterBalanceAfter = await provider.getBalance(hunter.address)
+        expect(hunterBalanceAfter).to.equal(hunterBalanceBefore.add(reward))
+
+    })
+
     it("Should allow only the supervisor to complete the bounty", async function(){
         const bountyValue = ethers.utils.parseEther("0.1")
         const overrides = {
