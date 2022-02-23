@@ -35,6 +35,14 @@ module.exports = {
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${infuraProjectKey}`,
       accounts: [supervisorPkey]
+    },
+    bscTestNet: {
+      url: `https://data-seed-prebsc-1-s1.binance.org:8545/`,
+      accounts: [supervisorPkey]
+    },
+    bscMainNet: {
+      url: `https://bsc-dataseed.binance.org/`,
+      accounts: [supervisorPkey]
     }
   }
 };

@@ -20,8 +20,8 @@ contract BountyFactory {
         require(msg.value >= (1 ether/100), "The minimum bounty value is 0.01 ETH.");
         address payable bountyOwner = payable(msg.sender);
 
-        uint comission = (1 ether/200); // 0.005 ETH
-        uint bountyValue = msg.value - comission;
+        uint256 comission = getCommision(msg.value);
+        uint256 bountyValue = msg.value - comission;
 
         Bounty newBounty = new Bounty(supervisor, bountyOwner, _expiryTimestamp, _bountyId);
         address bountyAddress = address(newBounty);
@@ -36,5 +36,13 @@ contract BountyFactory {
         
         emit BountyCreated(bountyAddress);
         return bountyAddress;
+    }
+
+    function getCommision(uint256 bountyValue) private pure returns (uint256) {
+        if(bountyValue >=  250000000000000000){
+            return (bountyValue*3)/100; // 3% if bounty > 0.25 ETH
+        }else{
+            return 8000000000000000; // 0.08 ETH if bounty < 0.25 ETH
+        }
     }
 }

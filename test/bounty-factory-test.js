@@ -33,6 +33,49 @@ describe("Bounty factory contract", function () {
         await expect(bountyContract.createBounty(createFutureTimestamp(30), "123", overrides)).to.be.revertedWith('The minimum bounty value is 0.01 ETH.');
     })
 
+    it("Should take 0.008 flat commision below for bounties below 0.25 ETH", async function() {
+        const bountyContract = await bountyContractFactory.deploy(supervisor.address)
+        await bountyContract.deployTransaction.wait();
+        const bcWithOwner = bountyContract.connect(owner)
+
+        const supervisorBalance = await provider.getBalance(supervisor.address)
+        await bcWithOwner.createBounty(createFutureTimestamp(30), "123", {
+            value: ethers.utils.parseEther("0.2")
+        })
+        const supervisorBalanceAfterBounty = await provider.getBalance(supervisor.address)
+        expect(supervisorBalanceAfterBounty).to.equal(supervisorBalance.add(ethers.utils.parseEther("0.008")))
+    })
+
+
+    it("Should take 3% commision for bounties over 0.25 ETH", async function() {
+        const bountyContract = await bountyContractFactory.deploy(supervisor.address)
+        await bountyContract.deployTransaction.wait();
+        const bcWithOwner = bountyContract.connect(owner)
+
+        const supervisorBalance2 = await provider.getBalance(supervisor.address)
+        await bcWithOwner.createBounty(createFutureTimestamp(30), "1234", {
+            value: ethers.utils.parseEther("1.33")
+        })
+        const accurateCommision = (ethers.utils.parseEther("1.33")).div(100).mul(3)
+        const supervisorBalanceAfterBounty2 = await provider.getBalance(supervisor.address)
+        expect(supervisorBalanceAfterBounty2).to.equal(supervisorBalance2.add(accurateCommision))
+    })
+    
+    it("Should take 3% commision for really big bounties too", async function() {
+        const bountyContract = await bountyContractFactory.deploy(supervisor.address)
+        await bountyContract.deployTransaction.wait();
+        const bcWithOwner = bountyContract.connect(owner)
+
+        // check really big value just for sanity
+        const supervisorBalance3 = await provider.getBalance(supervisor.address)
+        await bcWithOwner.createBounty(createFutureTimestamp(30), "1234", {
+            value: ethers.utils.parseEther("432.34332")
+        })
+        const accurateCommision2 = (ethers.utils.parseEther("432.34332")).div(100).mul(3)
+        const supervisorBalanceAfterBounty3 = await provider.getBalance(supervisor.address)
+        expect(supervisorBalanceAfterBounty3).to.equal(supervisorBalance3.add(accurateCommision2))
+    })
+
     it("Should transfer the commision to the supervisor when creating the bounty", async function() {
         const bountyValue = ethers.utils.parseEther("0.1")
         const overrides = {
@@ -48,12 +91,12 @@ describe("Bounty factory contract", function () {
         await bcWithOwner.createBounty(createFutureTimestamp(30), "123", overrides)
 
         const supervisorBalanceAfterBounty = await provider.getBalance(supervisor.address)
-        expect(supervisorBalanceAfterBounty).to.equal(supervisorBalance.add(ethers.utils.parseEther("0.005")))
+        expect(supervisorBalanceAfterBounty).to.equal(supervisorBalance.add(ethers.utils.parseEther("0.008")))
     })
 
     it("Should transfer the entire reward to the hunter", async function() {
         const bountyValue = ethers.utils.parseEther("0.1")
-        const reward = bountyValue.sub(ethers.utils.parseEther("0.005"))
+        const reward = bountyValue.sub(ethers.utils.parseEther("0.008"))
         const overrides = {
             value: bountyValue
         }
@@ -116,7 +159,7 @@ describe("Bounty factory contract", function () {
         const ownerBalancePostClaim = await provider.getBalance(owner.address)
 
         // make sure that we get the value back on the owner minus the commision
-        const returnedValue = bountyValue.sub(ethers.utils.parseEther("0.005"))
+        const returnedValue = bountyValue.sub(ethers.utils.parseEther("0.008"))
         expect(ownerBalancePostClaim).to.equal(ownerBalancePostDeploy.add(returnedValue))
     })
 
