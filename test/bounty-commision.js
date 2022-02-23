@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("Bounty commision", function () {
+describe("Bounty factory contract", function () {
 
     let provider;
     let bountyContractFactory;
@@ -13,6 +13,7 @@ describe("Bounty commision", function () {
 
     const abi = [
         "function claimTimeout() public",
+        "function payoutBounty(address payable recipient) public payable"
     ];
 
     beforeEach(async function () {
@@ -50,7 +51,25 @@ describe("Bounty commision", function () {
         expect(supervisorBalanceAfterBounty).to.equal(supervisorBalance.add(ethers.utils.parseEther("0.005")))
     })
 
-    // TODO finish the test rewrite later
+    it("Should allow only the supervisor to complete the bounty", async function(){
+        const bountyValue = ethers.utils.parseEther("0.1")
+        const overrides = {
+            value: bountyValue
+        }
+        const bountyFactory = await bountyContractFactory.deploy(supervisor.address)
+        await bountyFactory.deployTransaction.wait();
+
+        // create the bounty as the owner
+        const bfWithOwner = bountyFactory.connect(owner)
+        await bfWithOwner.createBounty(createFutureTimestamp(30), "123", overrides)
+        const bountyAddress = await bountyFactory.allBounties("123")
+
+        // claim timeout as the hunter on the contract
+        const bounty = new ethers.Contract(bountyAddress, abi, hunter);
+        
+        await expect(bounty.payoutBounty(hunter.address)).to.be.revertedWith('Sender not authorized.');
+    })
+
     it("Should return the bounty to the owner upon expiration", async function () {
         const bountyValue = ethers.utils.parseEther("0.1")
         const overrides = {
@@ -64,24 +83,34 @@ describe("Bounty commision", function () {
         await bfWithOwner.createBounty(createPastTimestamp(30), "123", overrides)
         const bountyAddress = await bountyFactory.allBounties("123")
         
-
         const ownerBalancePostDeploy = await provider.getBalance(owner.address)
 
+        // claim timeout as the hunter on the contract
         const bounty = new ethers.Contract(bountyAddress, abi, hunter);
-
-        const res =  await bounty.claimTimeout()
-        console.log(res)
-
+        await bounty.claimTimeout()
         const ownerBalancePostClaim = await provider.getBalance(owner.address)
 
-        console.log(ownerBalancePostDeploy)
-        console.log(ownerBalancePostClaim)
-        console.log(ownerBalancePostDeploy.add(ethers.utils.parseEther("0.005")))
+        // make sure that we get the value back on the owner minus the commision
+        const returnedValue = bountyValue.sub(ethers.utils.parseEther("0.005"))
+        expect(ownerBalancePostClaim).to.equal(ownerBalancePostDeploy.add(returnedValue))
+    })
 
-        
-        expect(ownerBalancePostClaim).to.equal(ownerBalancePostDeploy.add(ethers.utils.parseEther("0.005")))
-        // The owner should have received the funds
-        // expect(ownerBalancePostClaim).to.equal(ownerBalancePostDeploy.add(bountyValue))
+    it("Should not allow withdrawing the bounty before the expiry date", async function () {
+        const bountyValue = ethers.utils.parseEther("0.1")
+        const overrides = {
+            value: bountyValue
+        }
+        const bountyFactory = await bountyContractFactory.deploy(supervisor.address)
+        await bountyFactory.deployTransaction.wait();
+
+        // create the bounty as the owner
+        const bfWithOwner = bountyFactory.connect(owner)
+        await bfWithOwner.createBounty(createFutureTimestamp(30), "123", overrides)
+        const bountyAddress = await bountyFactory.allBounties("123")
+
+        // claim timeout as the hunter on the contract
+        const bounty = new ethers.Contract(bountyAddress, abi, hunter);  
+        await expect(bounty.claimTimeout()).to.be.revertedWith('This contract has not expired yet.');
     })
 
     function createFutureTimestamp(plusSeconds) {
