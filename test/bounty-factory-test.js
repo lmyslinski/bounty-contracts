@@ -10,7 +10,6 @@ describe("Bounty factory contract", function () {
     let owner;  // the owner of the bounty
     let hunter; // the one completing the bounty
 
-
     const abi = [
         "function claimTimeout() public",
         "function payoutBounty(address payable recipient) public payable"
