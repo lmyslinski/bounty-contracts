@@ -13,3 +13,9 @@ npx hardhat test
 npx hardhat run scripts/deploy.js --network ropsten
 ./scripts/generate-java-wrapper.sh
 ```
+
+
+Deploy to prod:
+```
+source .env-production
+npx hardhat run scripts/deploy.js --network bscMainNet

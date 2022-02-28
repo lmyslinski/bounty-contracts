@@ -28,6 +28,10 @@ module.exports = {
     hardhat: {
       chainId: 1337
     },
+    ethMainNet: {
+      url: `https://mainnet.infura.io/v3/${infuraProjectKey}`,
+      accounts: [supervisorPkey]
+    },
     ropsten: {
       url: `https://ropsten.infura.io/v3/${infuraProjectKey}`,
       accounts: [supervisorPkey]
